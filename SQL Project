@@ -1,0 +1,86 @@
+CREATE DATABASE Furniture_Sales;
+USE Furniture_Sales;
+CREATE TABLE sales_Data (
+transaction_id VARCHAR(15),
+customer_id VARCHAR(15),
+customer_name VARCHAR(30),
+customer_age INT,
+gender VARCHAR(15),
+product_id VARCHAR(15),
+product_name VARCHAR(15),
+product_category VARCHAR(15),
+quantity INT,
+prce FLOAT,
+payment_mode VARCHAR(15),
+purchase_date DATE,
+time_of_purchase TIME,
+status VARCHAR(15)
+);
+ALTER TABLE sales_Data RENAME COLUMN prce TO price;
+INSERT INTO sales_Data VALUES
+('T001','C001','Amit Sharma',28,'Male','P001','Sofa','Living Room',1,25000,'Credit Card','2026-05-01','10:30:00','Completed'),
+('T002','C002','Priya Mehta',34,'Female','P002','Dining Table','Dining',1,18000,'UPI','2026-05-02','12:15:00','Completed'),
+('T003','C003','Rahul Verma',40,'Male','P003','Bed','Bedroom',2,30000,'Cash','2026-05-02','14:45:00','Pending'),
+('T004','C004','Sneha Patel',29,'Female','P004','Chair','Office',4,8000,'Credit Card','2026-05-03','16:00:00','Completed'),
+('T005','C005','Arjun Singh',35,'Male','P005','Wardrobe','Bedroom',1,22000,'Debit Card','2026-05-03','17:20:00','Completed'),
+('T006','C006','Neha Gupta',31,'Female','P006','Coffee Table','Living Room',1,7000,'UPI','2026-05-04','11:10:00','Completed'),
+('T007','C007','Karan Joshi',27,'Male','P007','Bookshelf','Study',1,12000,'Cash','2026-05-04','13:30:00','Pending'),
+('T008','C008','Riya Kapoor',30,'Female','P008','Office Desk','Office',1,15000,'Credit Card','2026-05-05','15:00:00','Completed'),
+('T009','C009','Vikram Rao',45,'Male','P009','TV Unit','Living Room',1,20000,'Debit Card','2026-05-05','18:40:00','Completed'),
+('T010','C010','Anjali Nair',26,'Female','P010','Recliner','Living Room',1,17000,'UPI','2026-05-05','19:50:00','Completed');
+SELECT * FROM sales_Data;
+SELECT COUNT(*) AS total_transactions FROM sales_Data;
+SELECT SUM(price*quantity) AS total_revenue FROM sales_Data;
+SELECT AVG(customer_age) AS avg_age FROM sales_Data;
+SELECT MAX(price) AS max_price, MIN(price) AS min_price FROM sales_Data;
+SELECT customer_name,
+CASE 
+    WHEN customer_age < 30 THEN 'Young'
+    WHEN customer_age BETWEEN 30 AND 40 THEN 'Middle-aged'
+    ELSE 'Senior'
+END AS age_group
+FROM sales_Data;
+SELECT DATE_FORMAT(purchase_date, '%M') AS purchase_month, COUNT(*) AS transactions
+FROM sales_Data
+GROUP BY purchase_month;
+SELECT CONCAT(product_name, ' - ', product_category) AS product_details FROM sales_Data;
+SELECT ROUND(AVG(price),2) AS avg_price FROM sales_Data;
+SELECT customer_name, SUBSTRING(customer_name,1,3) AS initials FROM sales_Data;
+SELECT NOW() AS current_datetime;
+SELECT DISTINCT payment_mode FROM sales_Data;
+CREATE TABLE Customer (
+    customer_id VARCHAR(15) PRIMARY KEY,
+    customer_name VARCHAR(30),
+    customer_age INT,
+    gender VARCHAR(15)
+);
+CREATE TABLE Product (
+    product_id VARCHAR(15) PRIMARY KEY,
+    product_name VARCHAR(30),
+    product_category VARCHAR(20),
+    price FLOAT
+);
+INSERT INTO Customer VALUES
+('C001','Amit Sharma',28,'Male'),
+('C002','Priya Mehta',34,'Female'),
+('C003','Rahul Verma',40,'Male'),
+('C004','Sneha Patel',29,'Female');
+
+INSERT INTO Product VALUES
+('P001','Sofa','Living Room',25000),
+('P002','Dining Table','Dining',18000),
+('P003','Bed','Bedroom',15000),
+('P004','Chair','Office',2000);
+SELECT s.transaction_id, c.customer_name, p.product_name, s.quantity, s.price, s.purchase_date
+FROM sales_Data s
+INNER JOIN Customer c ON s.customer_id = c.customer_id
+INNER JOIN Product p ON s.product_id = p.product_id;
+SELECT c.customer_name, SUM(s.price * s.quantity) AS total_spent
+FROM sales_Data s
+INNER JOIN Customer c ON s.customer_id = c.customer_id
+GROUP BY c.customer_name;
+SELECT p.product_category, SUM(s.price * s.quantity) AS revenue
+FROM sales_Data s
+INNER JOIN Product p ON s.product_id = p.product_id
+GROUP BY p.product_category
+ORDER BY revenue DESC;
